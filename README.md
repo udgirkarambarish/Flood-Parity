@@ -64,14 +64,12 @@ How to Run
 
     ```
     pip install -r requirements.txt
-
     ```
 
 3.  Run the evaluation script:
 
     ```
     python parity.py
-
     ```
 
 After execution, the following files are generated:

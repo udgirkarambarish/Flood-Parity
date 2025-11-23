@@ -1,3 +1,5 @@
+* * * * *
+
 # Flood-Parity
 ===========
 
@@ -60,11 +62,17 @@ How to Run
 
 2.  Install the requirements:
 
-    `pip install -r requirements.txt`
+    ```
+    pip install -r requirements.txt
+
+    ```
 
 3.  Run the evaluation script:
 
-    `python flood_eval.py`
+    ```
+    python parity.py
+
+    ```
 
 After execution, the following files are generated:
 
@@ -74,7 +82,7 @@ After execution, the following files are generated:
 
 -   flood_maps.png
 
--   results_report.pdf
+-   parity.pdf
 
 * * * * *
 
@@ -92,3 +100,5 @@ The generated PDF includes:
 -   Truth vs predicted flood mask comparison
 
 This setup enables fast and reliable benchmarking for hydrodynamic surrogate models such as FNO-based flood predictors.
+
+* * * * *

@@ -1,5 +1,3 @@
-* * * * *
-
 # Flood-Parity
 
 FloodParity is a lightweight evaluation tool used to validate high-resolution flood predictions from surrogate models by comparing `pred.tif` (predicted flood depth) against `truth.tif` (actual flood depth). It generates both quantitative metrics and visual plots, along with an automated PDF report.

@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from rasterio.warp import reproject, Resampling
 
+# ---- added import for logger ----
+from logs import ExperimentLogger
+
 # -----------------------------------------------------------
 # Config
 # -----------------------------------------------------------
@@ -20,6 +23,12 @@ with rasterio.open(truth_path) as truth_src, rasterio.open(pred_path) as pred_sr
 
     truth_nodata = truth_src.nodata
     pred_nodata = pred_src.nodata
+
+    # store CRS and resolution for logging later
+    truth_crs = truth_src.crs
+    pred_crs = pred_src.crs
+    truth_res = truth_src.res
+    pred_res = pred_src.res
 
     # If grid/resolution/CRS/transform differ, resample pred onto truth grid
     need_resample = (
@@ -183,3 +192,71 @@ with PdfPages(pdf_output) as pdf:
 
 print("Done.")
 print(f"PDF report saved as: {pdf_output}")
+
+# -----------------------------------------------------------
+# JSON EXPERIMENT LOG (added block)
+# -----------------------------------------------------------
+logger = ExperimentLogger(save_dir="logs")
+
+metadata = {
+    "experiment_name": "Flood_Parity_Benchmark",
+    "dataset_id": truth_path,
+    "user": "Ambarish",
+    "script_name": "parity.py",
+    "model": {
+        "name": "Surrogate_FNO_v3",
+        "version": "3.2.1",
+        "commit_hash": ""
+    }
+}
+
+data_sources = {
+    "raster_files": [
+        {
+            "role": "truth",
+            "path": truth_path,
+            "crs": str(truth_crs),
+            "resolution": list(truth_res),
+            "nodata": float(truth_nodata) if truth_nodata is not None else None
+        },
+        {
+            "role": "pred",
+            "path": pred_path,
+            "crs": str(pred_crs),
+            "resolution": list(pred_res),
+            "nodata": float(pred_nodata) if pred_nodata is not None else None
+        }
+    ],
+    "vector_files": []
+}
+
+parameters = {
+    "model_type": "FNO",
+    "learning_rate": None,
+    "batch_size": None,
+    "epochs": None,
+    "loss_function": "MSE",
+    "optimizer": "AdamW",
+    "input_features": ["DEM", "HazardRaster"]
+}
+
+metrics = {
+    "mae": float(mae),
+    "rmse": float(rmse),
+    "iou_flooded": float(iou_flooded),
+    "iou_non_flooded": float(iou_nonflooded),
+    "percent_area_misclassified": float(percent_misclassified)
+}
+
+artifacts = list(plot_files.values()) + [pdf_output]
+
+log_path = logger.log(
+    run_type="parity",
+    metadata=metadata,
+    parameters=parameters,
+    data_sources=data_sources,
+    metrics=metrics,
+    artifacts=artifacts,
+)
+
+print("Experiment log saved as:", log_path)
